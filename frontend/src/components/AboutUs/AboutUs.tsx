@@ -19,6 +19,9 @@ const AboutUs = () => {
             With encrypted transactions, real-time updates, and 24/7 support, we’re here to make your financial experience seamless.  
             Trust, transparency, and usability are at the heart of everything we do.
           </p>
+          <p>
+            This is all you need to know about us
+          </p>
         </div>
       </div>
     </section>
