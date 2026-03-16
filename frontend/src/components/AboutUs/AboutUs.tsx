@@ -22,6 +22,7 @@ const AboutUs = () => {
           <p>
             This is all you need to know about us
           </p>
+          <button>This is the about</button>
         </div>
       </div>
     </section>
