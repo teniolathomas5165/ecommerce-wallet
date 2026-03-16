@@ -78,6 +78,22 @@ export interface CreateCardPayload {
   accent_color?: string;
 }
 
+export interface AddCardPayload {
+  card_type: CardType;          // "VISA" | "MASTERCARD" | "VERVE"
+  card_category: CardCategory;  // "VIRTUAL" | "PHYSICAL"
+  holder_name: string;          // cardholder name
+  color_gradient?: string;      // optional, e.g., "from-blue-600 to-blue-800"
+  accent_color?: string;        // optional, e.g., "#3b82f6"
+}
+
+export interface AddCardViaPaystackPayload {
+  reference: string;
+  card_type: CardType;
+  holder_name: string;
+  card_category: CardCategory;
+  color_gradient?: string;
+  accent_color?: string;
+}
 export interface UpdateCardPayload {
   holder_name?: string;
   color_gradient?: string;

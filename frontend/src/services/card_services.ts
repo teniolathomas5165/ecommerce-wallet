@@ -11,10 +11,11 @@ import type {
   Card,
   CardTransaction,
   CardStats,
-  PaginatedResponse,
+  PaginatedResponse,  
   CreateCardPayload,
   UpdateCardPayload,
   TransactionFilters,  
+  AddCardViaPaystackPayload,
 } from "../types/cards_types";
 
 // ─── Base Configuration ────────────────────────────────────────────────────────
@@ -102,8 +103,12 @@ const CardService = {
    * Returns all cards for the authenticated user.
    */
   getCards(): Promise<Card[]> {
-    return cardFetch<Card[]>(`${CARDS_BASE}/`);
-  },
+  return cardFetch<any>(`${CARDS_BASE}/`).then((data) => {
+    // Handle both paginated { results: [] } and plain array responses
+    if (Array.isArray(data)) return data;
+    return data.results ?? [];
+  });
+},
 
   /**
    * GET /cards/{id}/
@@ -178,11 +183,17 @@ const CardService = {
    * GET /cards/transactions/
    * Accepts the full TransactionFilters object; only defined values are sent.
    */
-  getTransactions(filters: TransactionFilters = {}): Promise<PaginatedResponse<CardTransaction>> {
-    return cardFetch<PaginatedResponse<CardTransaction>>(`${CARDS_BASE}/transactions/`, {
-      params: buildFilterParams(filters),
-    });
-  },
+  async getTransactions(filters: TransactionFilters = {}): Promise<PaginatedResponse<CardTransaction>> {
+  const data = await cardFetch<any>(`${CARDS_BASE}/transactions/`, {
+    params: buildFilterParams(filters),
+  });
+
+  // Handle both paginated { results: [] } and plain [] responses
+  if (Array.isArray(data)) {
+    return { count: data.length, next: null, previous: null, results: data };
+  }
+  return data;
+},
 
   /**
    * GET /cards/transactions/{id}/
@@ -190,7 +201,16 @@ const CardService = {
   getTransaction(id: string): Promise<CardTransaction> {
     return cardFetch<CardTransaction>(`${CARDS_BASE}/transactions/${id}/`);
   },
+
+addCardViaPaystack(payload: AddCardViaPaystackPayload): Promise<Card> {
+  return cardFetch<Card>(`${CARDS_BASE}/add-paystack-card/`, {
+    method: "POST",
+    body: payload,
+  });
+},
 };
+
+
 
 export default CardService;
 
@@ -208,4 +228,5 @@ export const {
   getCardStats,
   getTransactions,
   getTransaction,
+  addCardViaPaystack, 
 } = CardService;

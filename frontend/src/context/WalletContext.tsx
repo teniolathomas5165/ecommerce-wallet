@@ -362,11 +362,11 @@ export function WalletProvider({ children }: WalletProviderProps) {
   // ── Contact management ─────────────────────────────────────────────────────
 
   /**
-   * Load saved contacts from localStorage on mount
+   * Load saved contacts from sessionStorage on mount
    */
   const loadContacts = useCallback(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = sessionStorage.getItem(STORAGE_KEY);
       if (stored) {
         const contacts = JSON.parse(stored) as SavedContact[];
         dispatch({ type: 'SET_CONTACTS', payload: contacts });
@@ -377,7 +377,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
   }, []);
 
   /**
-   * Add a new contact and persist to localStorage
+   * Add a new contact and persist to sessionStorage
    */
   const addContact = useCallback((contact: Omit<SavedContact, 'added_at'>) => {
     const newContact: SavedContact = {
@@ -387,30 +387,30 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
     dispatch({ type: 'ADD_CONTACT', payload: newContact });
 
-    // Persist to localStorage
+    // Persist to sessionStorage
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = sessionStorage.getItem(STORAGE_KEY);
       const existing = stored ? JSON.parse(stored) : [];
       const updated = [...existing, newContact];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     } catch (err) {
       console.error('Failed to save contact:', err);
     }
   }, []);
 
   /**
-   * Remove a contact by username and persist to localStorage
+   * Remove a contact by username and persist to sessionStorage
    */
   const removeContact = useCallback((username: string) => {
     dispatch({ type: 'REMOVE_CONTACT', payload: username });
 
-    // Persist to localStorage
+    // Persist to sessionStorage
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = sessionStorage.getItem(STORAGE_KEY);
       if (stored) {
         const existing = JSON.parse(stored) as SavedContact[];
         const updated = existing.filter(c => c.username !== username);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
       }
     } catch (err) {
       console.error('Failed to remove contact:', err);

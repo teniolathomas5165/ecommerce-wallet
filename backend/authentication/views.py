@@ -8,6 +8,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 from .supabase_client import supabase
 from .authentication import SupabaseJWTAuthentication
@@ -20,7 +22,11 @@ from .serializers import (
 )
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class RegisterUserView(APIView):
+    authentication_classes = []  # public endpoint — no auth needed
+    permission_classes = []  # override global IsAuthenticated
+
     def post(self, request):
         data = request.data
         email = data.get("email")
@@ -56,7 +62,11 @@ class RegisterUserView(APIView):
         )
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class LoginUserView(APIView):
+    authentication_classes = []  # public endpoint — no auth needed
+    permission_classes = []  # override global IsAuthenticated
+
     def post(self, request):
         data = request.data
         email = data.get("email")
@@ -290,13 +300,6 @@ class UploadAvatarView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # TODO: Upload to Supabase Storage or your preferred storage service
-        # For now, we'll just save the URL
-        # In production, you would upload the file and get a URL
-
-        # Example: avatar_url = upload_to_storage(avatar_file)
-        # For now, return placeholder
-
         return Response(
             {
                 "message": "Avatar upload endpoint ready",
@@ -324,7 +327,6 @@ class DeleteAccountView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Verify password
         try:
             auth_response = supabase.auth.sign_in_with_password(
                 {"email": request.user.email, "password": password}

@@ -5,7 +5,7 @@ Authentication is enforced globally via DEFAULT_PERMISSION_CLASSES.
 """
 
 from decimal import Decimal
-
+from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, status
 from rest_framework.decorators import action
@@ -31,6 +31,7 @@ from .serializers import (
     CardUpdateSerializer,
 )
 from .services import CardService
+import requests
 
 
 # ── Cards ViewSet ──────────────────────────────────────────────────────────────
@@ -123,6 +124,54 @@ class CardViewSet(
         card = self.get_object()
         updated = CardService.set_default_card(user=request.user, card=card)
         return Response(CardSerializer(updated).data)
+
+    @action(detail=False, methods=["post"], url_path="add-paystack-card")
+    def add_paystack_card(self, request):
+        """
+        Add a new card via Paystack authorization reference.
+        Expects JSON payload:
+        {
+            "reference": "PS_xxxxx"
+        }
+        """
+        reference = request.data.get("reference")
+        if not reference:
+            return Response({"detail": "Reference is required."}, status=400)
+
+        # Verify transaction with Paystack
+        url = f"https://api.paystack.co/transaction/verify/{reference}"
+        headers = {"Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"}
+        resp = requests.get(url, headers=headers)
+        if resp.status_code != 200:
+            return Response({"detail": "Failed to verify transaction."}, status=400)
+
+        data = resp.json().get("data")
+        if not data or not data.get("authorization"):
+            return Response({"detail": "Invalid authorization data."}, status=400)
+
+        auth = data["authorization"]
+        card_type = auth["brand"].upper()
+        last_four = auth["last4"]
+        exp_month = int(auth["exp_month"])
+        exp_year = int(auth["exp_year"])
+        authorization_code = auth["authorization_code"]
+
+        # Create Card
+        card = Card.objects.create(
+            user=request.user,
+            card_type=card_type,
+            card_category="VIRTUAL",
+            holder_name=request.user.get_full_name(),
+            last_four=last_four,
+            expiry_month=exp_month,
+            expiry_year=exp_year,
+            color_gradient="from-blue-600 to-blue-800",
+            accent_color="#3b82f6",
+            external_card_id=authorization_code,
+        )
+
+        serializer = CardSerializer(card)
+        return Response(serializer.data, status=201)
 
 
 # ── Card Stats View ────────────────────────────────────────────────────────────
