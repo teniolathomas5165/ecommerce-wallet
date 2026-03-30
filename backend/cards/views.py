@@ -173,6 +173,70 @@ class CardViewSet(
         serializer = CardSerializer(card)
         return Response(serializer.data, status=201)
 
+    @action(detail=False, methods=["post"], url_path="add-flutterwave-card")
+    def add_flutterwave_card(self, request):
+        """
+        Add a new card via Flutterwave transaction reference.
+        Expects JSON payload:
+        {
+            "transaction": "FLW_xxxxx"
+        }
+        """
+        transaction_id = request.data.get("transaction_id")
+        if not transaction_id:
+            return Response({"detail": "Transaction ID is required."}, status=400)
+
+        # Verify transaction with Flutterwave
+        url = f"https://api.flutterwave.com/v3/{transaction_id}/verify"
+        headers = {"Authorization": f"Bearer {settings.FLUTTERWAVE_SECRET_KEY}"}
+        resp = requests.get(url, headers=headers)
+        if resp.status_code != 200:
+            return Response({"detail": "Failed to verify transaction."}, status=400)
+
+        data = resp.json().get("data")
+        if not data or data.get("status") != "successful":
+            return Response({"detail": "Transaction was not successful."}, status=400)
+
+        card_info = data.get("card")
+        if not card_info:
+            return Response(
+                {"detail": "No card information found in Transaction."}, status=400
+            )
+
+        card_type = card_info.get("type", "").upper()
+        last_four = card_info.get("last_4digits")
+        expiry = card_info.get("expiry", "/")  # format: "MM/YY"
+        token = card_info.get("token")
+
+        if not all([card_type, last_four, expiry, token]):
+            return Response(
+                {"detail": "Incomplete card data returned by Flutterwave."}, status=400
+            )
+
+        try:
+            exp_month, exp_year_short = expiry.split("/")
+            exp_month = int(exp_month.strip())
+            exp_year = int("20" + exp_year_short.strip())
+        except (ValueError, AttributeError):
+            return Response({"detail": "Invalid card expiry format."}, status=400)
+
+        # Create Card
+        card = Card.objects.create(
+            user=request.user,
+            card_type=card_type,
+            card_category="VIRTUAL",
+            holder_name=request.user.get_full_name(),
+            last_four=last_four,
+            expiry_month=exp_month,
+            expiry_year=exp_year,
+            color_gradient="from-orange-500 to-red-600",
+            accent_color="#f97316",
+            external_card_id=token,
+        )
+
+        serializer = CardSerializer(card)
+        return Response(serializer.data, status=201)
+
 
 # ── Card Stats View ────────────────────────────────────────────────────────────
 
