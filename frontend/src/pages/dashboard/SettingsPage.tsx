@@ -1,4 +1,4 @@
-import React from 'react'
+
 import Settings from '../../components/userdashboard/Settings';
 
 const SettingsPage = () => {

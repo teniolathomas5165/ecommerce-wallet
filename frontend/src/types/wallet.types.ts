@@ -9,6 +9,9 @@ export type TransactionType = 'CREDIT' | 'DEBIT';
 export type TransactionStatus = 'PENDING' | 'COMPLETED' | 'FAILED' | 'REVERSED';
 export type TransactionSource = 'FUNDING' | 'ORDER_PAYMENT' | 'REFUND' | 'REVERSAL' | 'ADMIN_ADJUSTMENT';
 
+
+export * from './wallet.types'
+
 export interface Wallet {
   user: number;
   email: string;

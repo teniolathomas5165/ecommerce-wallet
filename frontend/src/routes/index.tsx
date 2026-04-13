@@ -20,7 +20,7 @@ const SettingsPage      = lazy(() => import('../pages/dashboard/SettingsPage'));
 const Privacy           = lazy(() => import('../pages/Privacy/FirstPrivacypage'));
 const RegisterForm      = lazy(() => import('../pages/Landing/Register'));
 const Login             = lazy(() => import('../pages/Landing/Login'));
-const AboutUs           = lazy(() => import('../pages/aboutus/AboutUS'));
+
 
 // Loading fallback
 const LoadingFallback = () => (

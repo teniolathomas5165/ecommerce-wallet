@@ -13,7 +13,7 @@ export * from './wallet.types';
 export * from './order.types';
 
 // Payment Types
-export * from './payment.types';
+// 
 
 // API Types
 export * from './api.types';

@@ -1,4 +1,4 @@
-import React from 'react'
+
 import Wallet from '../../components/userdashboard/Wallet';
 
 const WalletPage = () => {
