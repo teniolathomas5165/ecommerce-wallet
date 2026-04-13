@@ -1,5 +1,5 @@
 
-import { Mail, Phone, MapPin, ArrowRight, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 export default function ModernFooter() {
   return (

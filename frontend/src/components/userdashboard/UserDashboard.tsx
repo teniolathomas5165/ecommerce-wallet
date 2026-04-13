@@ -25,7 +25,6 @@ const CHART_DATA = [
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const DashboardOverview = () => {
-  const { user } = useAuth();
   const {
     wallet,
     balance,

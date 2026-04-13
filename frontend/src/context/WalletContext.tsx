@@ -5,7 +5,7 @@
  * — the WalletService layer stays untouched regardless of state manager.
  */
 
-import React, {
+import  {
   createContext,
   useCallback,
   useContext,

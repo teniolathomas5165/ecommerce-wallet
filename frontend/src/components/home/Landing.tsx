@@ -9,7 +9,6 @@ import {
   ArrowRight,
   Play,
   Star,
-  Users,
   DollarSign,
 
 } from 'lucide-react';

@@ -450,7 +450,7 @@
 // export default Cards;
 
 
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useCards } from "../../context/CardContext";
 import {useAuth} from "../../context/AuthContext"
 import type { CardType, CreateCardPayload, AddCardViaPaystackPayload  } from "../../types/cards_types";
@@ -477,14 +477,12 @@ const Cards = () => {
     cardActionLoading,
     activeFilters,
     setFilters,
-    createCard,
     addCardViaPaystack,
     freezeCard,
     unfreezeCard,
   } = useCards();
 
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
-  const { user } = useAuth()
 
   const [newCard, setNewCard] = useState<NewCardForm>({
     card_type: "VISA",

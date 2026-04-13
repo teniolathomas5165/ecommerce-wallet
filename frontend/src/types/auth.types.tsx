@@ -9,6 +9,11 @@ export interface RegisterPayload {
   username: string;
 }
 
+export interface PrivacyPolicySection {
+  title: string;
+  description: string;
+}
+
 export interface LoginPayload {
   email: string;
   password: string;
