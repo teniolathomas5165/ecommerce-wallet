@@ -4,7 +4,6 @@
 // Auth guard should live in a ProtectedRoute wrapper, not here.
 
 import { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { useWallet } from '../../context/WalletContext';
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency, formatRelativeTime, parseTransaction } from '../../types/utils';

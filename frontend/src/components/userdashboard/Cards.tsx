@@ -452,7 +452,6 @@
 
 import  { useState } from "react";
 import { useCards } from "../../context/CardContext";
-import {useAuth} from "../../context/AuthContext"
 import type { CardType, CreateCardPayload, AddCardViaPaystackPayload  } from "../../types/cards_types";
 
 type NewCardForm = CreateCardPayload & {
