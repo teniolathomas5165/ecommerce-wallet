@@ -35,7 +35,9 @@ if not SECRET_KEY:
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = [h for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h]
+CORS_ALLOWED_ORIGINS = [
+    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "").replace("\n", ",").split(",") if o.strip()
+]
 
 # ---------------------------------------------------------------------------
 # Database — configured per environment
