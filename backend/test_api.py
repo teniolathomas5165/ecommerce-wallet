@@ -5,7 +5,7 @@ Quick way to test your endpoints
 import requests
 import json
 
-BASE_URL = "http://localhost:8000/api"
+BASE_URL = "https://ecommerce-wallet.onrender.com/api"
 
 def test_login():
     """Test login and return tokens"""
