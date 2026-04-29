@@ -14,20 +14,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ---------------------------------------------------------------------------
 # Environment loading
-# Load .env first for shared/fallback values, then override with .env.{ENV}
+# On Render: env vars are injected by the dashboard — no file needed.
+# Locally: load .env first (shared values), then .env.{ENV} (overrides).
 # ---------------------------------------------------------------------------
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 ENV = os.getenv("ENV", "dev")
 
-env_file = BASE_DIR / f".env.{ENV}"
-if env_file.exists():
-    load_dotenv(dotenv_path=env_file, override=True)  # override=True so prod values win
-else:
-    raise RuntimeError(f"Missing environment file: .env.{ENV}")
+if not os.getenv("RENDER"):
+    env_file = BASE_DIR / f".env.{ENV}"
+    if env_file.exists():
+        load_dotenv(dotenv_path=env_file, override=True)
+    else:
+        raise RuntimeError(f"Missing environment file: .env.{ENV}")
 
 # ---------------------------------------------------------------------------
-# Core security settings — all sourced from env, never hardcoded
+# Core security — never hardcoded, always from env
 # ---------------------------------------------------------------------------
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
@@ -35,12 +37,14 @@ if not SECRET_KEY:
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-CORS_ALLOWED_ORIGINS = [
-    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "").replace("\n", ",").split(",") if o.strip()
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.getenv("ALLOWED_HOSTS", "").replace("\n", ",").split(",")
+    if h.strip()
 ]
 
 # ---------------------------------------------------------------------------
-# Database — configured per environment
+# Database
 # ---------------------------------------------------------------------------
 if ENV == "prod":
     DATABASE_URL = os.getenv("PROD_DATABASE_URL")
@@ -62,13 +66,14 @@ else:
 
     DATABASES = {
         "default": dj_database_url.parse(
-            LOCAL_DATABASE_URL, conn_max_age=60, ssl_require=False
+            LOCAL_DATABASE_URL, conn_max_age=60, ssl_require=True
         )
     }
+    DATABASES["default"].setdefault("OPTIONS", {})["sslmode"] = "require"
     print(f"Using LOCAL database: {LOCAL_DATABASE_URL[:30]}...")
 
 # ---------------------------------------------------------------------------
-# Production security headers (HTTPS enforcement)
+# Production security headers
 # ---------------------------------------------------------------------------
 if ENV == "prod":
     SECURE_HSTS_SECONDS = 31536000
@@ -80,7 +85,7 @@ if ENV == "prod":
     SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # ---------------------------------------------------------------------------
-# Third-party service credentials
+# Third-party credentials
 # ---------------------------------------------------------------------------
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY")
@@ -133,7 +138,9 @@ MIDDLEWARE = [
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    o for o in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if o
+    o.strip()
+    for o in os.getenv("CORS_ALLOWED_ORIGINS", "").replace("\n", ",").split(",")
+    if o.strip()
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -149,7 +156,7 @@ CORS_ALLOW_HEADERS = [
 ]
 
 # ---------------------------------------------------------------------------
-# URL / WSGI
+# URLs / WSGI
 # ---------------------------------------------------------------------------
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
@@ -185,7 +192,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ---------------------------------------------------------------------------
-# Internationalization
+# Internationalisation
 # ---------------------------------------------------------------------------
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
