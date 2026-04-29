@@ -11,10 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
-
 .env
+.env.dev
+.env.prod
 .env.*.local
-env.d.t
+
 .venv
 venv/
 
